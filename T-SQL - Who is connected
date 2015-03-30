@@ -1,0 +1,47 @@
+-- quem está ligado a que BDs
+DECLARE @retTable TABLE (
+  SPID int not null
+  , Status varchar (255) not null
+  , Login varchar (255) not null
+  , HostName varchar (255) not null
+  , BlkBy varchar(10) not null
+  , DBName varchar (255) null
+  , Command varchar (255) not null
+  , CPUTime int not null
+  , DiskIO int not null
+  , LastBatch varchar (255) not null
+  , ProgramName varchar (255) null
+  , SPID2 int not null
+  , REQUESTID INT
+)  
+INSERT INTO @retTable EXEC sp_who2  
+SELECT spid, login, dbname, command, *
+FROM @retTable
+where dbname not in ('master','model','msdb','tempDB')
+ORDER BY len(login) desc ,2 , 3, HostName;
+
+
+-- MSDE
+-- quem está ligado a que BDs
+create table #retTable (
+  SPID int not null
+  , Status varchar (255) not null
+  , Login varchar (255) not null
+  , HostName varchar (255) not null
+  , BlkBy varchar(10) not null
+  , DBName varchar (255) null
+  , Command varchar (255) not null
+  , CPUTime int not null
+  , DiskIO int not null
+  , LastBatch varchar (255) not null
+  , ProgramName varchar (255) null
+  , SPID2 int not null
+)  
+INSERT INTO #retTable
+EXEC sp_who2  
+SELECT spid, login, dbname, command, *
+FROM #retTable
+where dbname not in ('master','model','msdb','tempDB')
+ORDER BY len(login) desc ,2 , 3, HostName;
+
+drop table #retTable
