@@ -14,11 +14,22 @@ DECLARE @retTable TABLE (
   , SPID2 int not null
   , REQUESTID INT
 )  
+
 INSERT INTO @retTable EXEC sp_who2  
-SELECT spid, login, dbname, command, *
-FROM @retTable
-where dbname not in ('master','model','msdb','tempDB')
-ORDER BY len(login) desc ,2 , 3, HostName;
+
+SELECT 
+  SessionID = tblWho.spid,
+  DatabaseName = dbname,
+  ClientName  = tblWho.hostname,
+  ClientIP = decc.client_net_address,
+  login,
+  command
+  --tblWho.*
+FROM @retTable as tblWho
+  INNER JOIN  sys.sysprocesses AS S ON S.spid = tblWho.SPID
+  INNER JOIN  sys.dm_exec_connections AS decc ON S.spid = decc.session_id
+WHERE dbname not in ('master','model','msdb','tempDB')
+ORDER BY 2, len(login) desc, 5;
 
 
 -- MSDE
